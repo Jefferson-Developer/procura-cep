@@ -36,23 +36,23 @@ class EnderecosListViewPage extends StatelessWidget {
               );
               //_buildListViewPosts(snapshot.data);
             } else
-              return _buildListViewPosts(snapshot.data);
+              return _buildListViewEnderecos(snapshot.data);
           },
         ),
       ),
     );
   }
 
-  ListView _buildListViewPosts(List<Enderecos> enderecos) {
+  ListView _buildListViewEnderecos(List<Enderecos> enderecos) {
     return ListView.builder(
       itemCount: enderecos.length,
       itemBuilder: (BuildContext context, int i) {
-        return _listTilePosts(enderecos, i);
+        return _listTileEnderecos(enderecos, i);
       },
     );
   }
 
-  GestureDetector _listTilePosts(List<Enderecos> enderecos, int i) {
+  GestureDetector _listTileEnderecos(List<Enderecos> enderecos, int i) {
     return GestureDetector(
       onTap: () {},
       child: ListTile(

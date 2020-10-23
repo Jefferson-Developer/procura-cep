@@ -8,48 +8,71 @@ class BuscaEnderecosPage extends StatefulWidget {
 
 class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
   String selecionada = 'PB';
+  GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
   TextEditingController cidadeController = TextEditingController();
   TextEditingController logradouroController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Busca Cep"),
+      appBar: AppBar(
+        title: Text("Busca Cep"),
+      ),
+      body: Form(
+        key: _keyForm,
+        child: ListView(
+          padding: EdgeInsets.all(10),
+          children: [
+            buildDropdownEstatico(),
+            TextFormField(
+              controller: cidadeController,
+              decoration: InputDecoration(
+                labelText: "Cidade",
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return "Campo nome não pode ser vazio.";
+                }
+                return null;
+              },
+              //onSaved: (value) {},
+            ),
+            TextFormField(
+              validator: (value) {
+                if (value.isEmpty) {
+                  return "Campo nome não pode ser vazio.";
+                }
+                return null;
+              },
+              controller: logradouroController,
+              decoration: InputDecoration(
+                labelText: "Logradouro",
+              ),
+            ),
+            RaisedButton(
+              child: Text("Buscar"),
+              onPressed: () {
+                _salvar();
+              },
+            ),
+          ],
         ),
-        body: Container(
-          //padding: EdgeInsets.only(top: 20),
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              buildDropdownEstatico(),
-              TextField(
-                controller: cidadeController,
-                decoration: InputDecoration(
-                  labelText: "Cidade",
-                ),
-              ),
-              TextField(
-                controller: logradouroController,
-                decoration: InputDecoration(
-                  labelText: "Logradouro",
-                ),
-              ),
-              RaisedButton(
-                child: Text("Buscar"),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EnderecosListViewPage(
-                            cidadeController.text,
-                            logradouroController.text,
-                            selecionada)),
-                  );
-                },
-              )
-            ],
-          ),
-        ));
+      ),
+    );
+  }
+
+  _salvar() {
+    if (_keyForm.currentState.validate()) {
+      _keyForm.currentState.save();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EnderecosListViewPage(
+                cidadeController.text.trim().replaceAll("%", " "),
+                logradouroController.text.trim().replaceAll("%", " "),
+                selecionada)),
+      );
+    }
   }
 
   buildDropdownEstatico() {
