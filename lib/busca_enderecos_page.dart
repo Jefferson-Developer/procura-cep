@@ -1,5 +1,8 @@
 import 'package:atividade8/enderecos_listview_page.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
 
 class BuscaEnderecosPage extends StatefulWidget {
   @override
@@ -11,53 +14,83 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
   TextEditingController cidadeController = TextEditingController();
   TextEditingController logradouroController = TextEditingController();
+  String request = "";
+
+  Future<Map> getData() async {
+    http.Response response = await http.get(request);
+    return json.decode(response.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Busca Cep"),
-      ),
-      body: Form(
-        key: _keyForm,
-        child: ListView(
-          padding: EdgeInsets.all(10),
-          children: [
-            buildDropdownEstatico(),
-            TextFormField(
-              controller: cidadeController,
-              decoration: InputDecoration(
-                labelText: "Cidade",
-              ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return "Campo nome não pode ser vazio.";
-                }
-                return null;
-              },
-              //onSaved: (value) {},
-            ),
-            TextFormField(
-              validator: (value) {
-                if (value.isEmpty) {
-                  return "Campo nome não pode ser vazio.";
-                }
-                return null;
-              },
-              controller: logradouroController,
-              decoration: InputDecoration(
-                labelText: "Logradouro",
-              ),
-            ),
-            RaisedButton(
-              child: Text("Buscar"),
-              onPressed: () {
-                _salvar();
-              },
-            ),
-          ],
+        appBar: AppBar(
+          title: Text("Busca Cep"),
         ),
-      ),
-    );
+        body: FutureBuilder<Map>(
+          future: getData(),
+          builder: (context, snapshot) {
+            return Form(
+              key: _keyForm,
+              child: ListView(
+                padding: EdgeInsets.all(10),
+                children: [
+                  buildDropdownEstatico(),
+                  TextFormField(
+                    controller: cidadeController,
+                    decoration: InputDecoration(
+                        labelText: "Cidade",
+                        labelStyle: TextStyle(color: Colors.blue)),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Campo nome não pode ser vazio.";
+                      }
+                      return null;
+                    },
+                    //onSaved: (value) {},
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Campo nome não pode ser vazio.";
+                      }
+                      return null;
+                    },
+                    controller: logradouroController,
+                    decoration: InputDecoration(
+                      labelText: "Logradouro",
+                      labelStyle: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                  RaisedButton.icon(
+                    icon: snapshot.hasData
+                        ? Icon(
+                            Icons.search,
+                            color: Colors.blue,
+                          )
+                        : Container(
+                            width: 20.0,
+                            height: 20.0,
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                              strokeWidth: 5.0,
+                            ),
+                          ),
+                    label: Text(
+                      "Buscar",
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onPressed: () {
+                      _salvar();
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        ));
   }
 
   _salvar() {
