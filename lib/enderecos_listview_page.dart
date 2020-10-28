@@ -6,11 +6,13 @@ class EnderecosListViewPage extends StatelessWidget {
   String cidade;
   String rua;
   String uf;
+
   EnderecosListViewPage(String cidade, String rua, String uf) {
     this.cidade = cidade;
     this.rua = rua;
     this.uf = uf;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,24 +23,36 @@ class EnderecosListViewPage extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.all(10),
         child: FutureBuilder(
-          future:
-              EnderecosApi.allEnderecos(cidade: cidade, logadouro: rua, uf: uf),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (!snapshot.hasData) {
-              return Container(
-                width: 200.0,
-                height: 200.0,
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 5.0,
-                ),
-              );
-              //_buildListViewPosts(snapshot.data);
-            } else
-              return _buildListViewEnderecos(snapshot.data);
-          },
-        ),
+            future: EnderecosApi.allEnderecos(
+                cidade: cidade, logadouro: rua, uf: uf),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                case ConnectionState.waiting:
+                  return Center(
+                    child: Container(
+                      width: 20.0,
+                      height: 20.0,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        strokeWidth: 5.0,
+                      ),
+                    ),
+                  );
+                default:
+                  if (snapshot.hasError) {
+                    return Center(
+                        child: Text(
+                      "Erro ao Carregar Dados :(",
+                      style: TextStyle(color: Colors.amber, fontSize: 25.0),
+                      textAlign: TextAlign.center,
+                    ));
+                  } else {
+                    return _buildListViewEnderecos(snapshot.data);
+                  }
+              }
+            }),
       ),
     );
   }

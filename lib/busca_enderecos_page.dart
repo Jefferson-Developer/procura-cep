@@ -15,7 +15,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
   TextEditingController cidadeController = TextEditingController();
   TextEditingController logradouroController = TextEditingController();
   String request = "";
-
+  GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
   Future<Map> getData() async {
     http.Response response = await http.get(request);
     return json.decode(response.body);
@@ -24,6 +24,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _keyScaffold,
         appBar: AppBar(
           title: Text("Busca Cep"),
         ),
@@ -43,7 +44,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
                         labelStyle: TextStyle(color: Colors.blue)),
                     validator: (value) {
                       if (value.isEmpty) {
-                        return "Campo nome não pode ser vazio.";
+                        return "Campo Cidade não pode ser vazio.";
                       }
                       return null;
                     },
@@ -52,7 +53,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
                   TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {
-                        return "Campo nome não pode ser vazio.";
+                        return "Campo Logradouro não pode ser vazio.";
                       }
                       return null;
                     },
@@ -83,7 +84,9 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
                       style: TextStyle(color: Colors.blue),
                     ),
                     onPressed: () {
-                      _salvar();
+                      setState(() {
+                        _salvar();
+                      });
                     },
                   ),
                 ],
@@ -105,6 +108,8 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
                 logradouroController.text.trim().replaceAll("%", " "),
                 selecionada)),
       );
+    } else {
+      _meuSnackBar();
     }
   }
 
@@ -113,7 +118,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
       value: selecionada,
       //dropdownColor: Colors.grey,
       isExpanded: true,
-      icon: Icon(Icons.add),
+      icon: Icon(Icons.arrow_drop_down),
       underline: Container(
         height: 2,
         color: Colors.black38,
@@ -139,5 +144,27 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
         });
       },
     );
+  }
+
+  _meuSnackBar() {
+    _keyScaffold.currentState.showSnackBar(SnackBar(
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: 2),
+      action: SnackBarAction(
+          textColor: Colors.red,
+          label: "",
+          onPressed: () {
+            print("");
+          }),
+      content: Row(
+        children: [
+          Icon(Icons.error),
+          SizedBox(
+            width: 30,
+          ),
+          Text("Dados invalidos !")
+        ],
+      ),
+    ));
   }
 }
