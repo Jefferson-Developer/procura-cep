@@ -1,24 +1,24 @@
-import 'package:atividade8/enderecos_listview_page.dart';
+import 'package:atividade8/pages/enderecos_listview_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-class BuscaEnderecosPage extends StatefulWidget {
+class BuscaEnderecos extends StatefulWidget {
   @override
-  _BuscaEnderecosPageState createState() => _BuscaEnderecosPageState();
+  _BuscaEnderecosState createState() => _BuscaEnderecosState();
 }
 
-class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
+class _BuscaEnderecosState extends State<BuscaEnderecos> {
   String selecionada = 'PB';
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
-  TextEditingController cidadeController = TextEditingController();
-  TextEditingController logradouroController = TextEditingController();
-  String request = "";
+  TextEditingController cidade = TextEditingController();
+  TextEditingController logradouro = TextEditingController();
+  String solicitar = "";
   GlobalKey<ScaffoldState> _keyScaffold = GlobalKey<ScaffoldState>();
-  Future<Map> getData() async {
-    http.Response response = await http.get(request);
-    return json.decode(response.body);
+  Future<Map> obterDados() async {
+    http.Response resposta = await http.get(solicitar);
+    return json.decode(resposta.body);
   }
 
   @override
@@ -29,41 +29,40 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
           title: Text("Busca Cep"),
         ),
         body: FutureBuilder<Map>(
-          future: getData(),
+          future: obterDados(),
           builder: (context, snapshot) {
             return Form(
               key: _keyForm,
               child: ListView(
                 padding: EdgeInsets.all(10),
                 children: [
-                  buildDropdownEstatico(),
+                  buildDropdownStatic(),
                   TextFormField(
-                    controller: cidadeController,
+                    controller: cidade,
                     decoration: InputDecoration(
                         labelText: "Cidade",
                         labelStyle: TextStyle(color: Colors.blue)),
-                    validator: (value) {
-                      if (value.isEmpty) {
+                    validator: (valor) {
+                      if (valor.isEmpty) {
                         return "Campo Cidade não pode ser vazio.";
                       }
                       return null;
                     },
-                    //onSaved: (value) {},
                   ),
                   TextFormField(
-                    validator: (value) {
-                      if (value.isEmpty) {
+                    validator: (valor) {
+                      if (valor.isEmpty) {
                         return "Campo Logradouro não pode ser vazio.";
                       }
                       return null;
                     },
-                    controller: logradouroController,
+                    controller: logradouro,
                     decoration: InputDecoration(
                       labelText: "Logradouro",
                       labelStyle: TextStyle(color: Colors.blue),
                     ),
                   ),
-                  RaisedButton.icon(
+                  TextButton.icon(
                     icon: snapshot.hasData
                         ? Icon(
                             Icons.search,
@@ -84,9 +83,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
                       style: TextStyle(color: Colors.blue),
                     ),
                     onPressed: () {
-                      setState(() {
-                        _salvar();
-                      });
+                      alteracaoEstado();
                     },
                   ),
                 ],
@@ -96,27 +93,15 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
         ));
   }
 
-  _salvar() {
-    if (_keyForm.currentState.validate()) {
-      _keyForm.currentState.save();
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EnderecosListViewPage(
-                cidadeController.text.trim().replaceAll("%", " "),
-                logradouroController.text.trim().replaceAll("%", " "),
-                selecionada)),
-      );
-    } else {
-      _meuSnackBar();
-    }
+  alteracaoEstado() {
+    setState(() {
+      _salvar();
+    });
   }
 
-  buildDropdownEstatico() {
+  buildDropdownStatic() {
     return DropdownButton<String>(
       value: selecionada,
-      //dropdownColor: Colors.grey,
       isExpanded: true,
       icon: Icon(Icons.arrow_drop_down),
       underline: Container(
@@ -125,7 +110,7 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
       ),
       items: [
         DropdownMenuItem(
-          child: Text("Paraiba"),
+          child: Text("Paraíba"),
           value: 'PB',
         ),
         DropdownMenuItem(
@@ -137,32 +122,48 @@ class _BuscaEnderecosPageState extends State<BuscaEnderecosPage> {
           value: 'BA',
         ),
       ],
-      onChanged: (value) {
-        print(value);
-        setState(() {
-          selecionada = value;
-        });
+      onChanged: (valor) {
+        receberNovoValor(valor);
       },
     );
   }
 
+  receberNovoValor(String valor) {
+    setState(() {
+      selecionada = valor;
+    });
+  }
+
+  _salvar() {
+    if (_keyForm.currentState.validate()) {
+      _keyForm.currentState.save();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EnderecosListViewPage(
+                cidade.text.trim().replaceAll("%", " "),
+                logradouro.text.trim().replaceAll("%", " "),
+                selecionada)),
+      );
+    } else {
+      _meuSnackBar();
+    }
+  }
+
   _meuSnackBar() {
-    _keyScaffold.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: Colors.red,
       duration: Duration(seconds: 2),
-      action: SnackBarAction(
-          textColor: Colors.red,
-          label: "",
-          onPressed: () {
-            print("");
-          }),
+      action:
+          SnackBarAction(textColor: Colors.red, label: "", onPressed: () {}),
       content: Row(
         children: [
           Icon(Icons.error),
           SizedBox(
             width: 30,
           ),
-          Text("Dados invalidos !")
+          Text("Dados inválidos !")
         ],
       ),
     ));
