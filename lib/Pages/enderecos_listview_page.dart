@@ -1,5 +1,5 @@
-import 'package:atividade8/enderecos.dart';
-import 'package:atividade8/enderecos_api.dart';
+import 'package:atividade8/object/enderecos.dart';
+import 'package:atividade8/api/enderecos_api.dart';
 import 'package:flutter/material.dart';
 
 class EnderecosListViewPage extends StatelessWidget {
@@ -17,13 +17,13 @@ class EnderecosListViewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${cidade}"),
+        title: Text("$cidade"),
         centerTitle: true,
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
         child: FutureBuilder(
-            future: EnderecosApi.allEnderecos(
+            future: EnderecosApi.todosOsEnderecos(
                 cidade: cidade, logadouro: rua, uf: uf),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               switch (snapshot.connectionState) {
@@ -66,12 +66,12 @@ class EnderecosListViewPage extends StatelessWidget {
     );
   }
 
-  GestureDetector _listTileEnderecos(List<Enderecos> enderecos, int i) {
+  GestureDetector _listTileEnderecos(List<Enderecos> enderecos, int iterator) {
     return GestureDetector(
       onTap: () {},
       child: ListTile(
           title: Text(
-            "Cep: " + enderecos[i].cep,
+            "Cep: " + enderecos[iterator].cep,
             style: TextStyle(
                 fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
           ),
@@ -79,7 +79,7 @@ class EnderecosListViewPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                "Logadouro: " + enderecos[i].logradouro,
+                "Logadouro: " + enderecos[iterator].logradouro,
                 style: TextStyle(color: Colors.grey),
               ),
             ],
